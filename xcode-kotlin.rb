@@ -30,9 +30,9 @@ class XcodeKotlin < Formula
     end
 
     if status.success?
-      ignoreFilePath = File.join(Dir.pwd, ".success")
+      FileUtils.mkdir_p(prefix)
+      ignoreFilePath = File.join(prefix, "SUCCESS")
       File.new(ignoreFilePath, 'w').close
-      prefix.install ".success"
     else
       odie "Couldn't install xcode-kotlin plugin!"
     end
