@@ -30,8 +30,9 @@ class XcodeKotlin < Formula
     end
 
     if status.success?
-      ignoreFilePath = File.join(prefix, ".success")
+      ignoreFilePath = File.join(Dir.pwd, ".success")
       File.new(ignoreFilePath, 'w').close
+      prefix.install ".success"
     end
   end
 
