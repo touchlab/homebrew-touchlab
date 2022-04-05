@@ -4,11 +4,13 @@ class XcodeKotlin < Formula
   url "https://github.com/touchlab/xcode-kotlin.git", :tag => "0.2.2"
   head "https://github.com/touchlab/xcode-kotlin.git", branch: "main"
   license "Apache-2.0"
+  keg_only "There is no command to call after installed."
 
   def install
     require 'open3'
+    require 'fileutils'
 
-    Open3.popen3("./setup.sh") do |stdin, stdout, stderr, thread|
+    status = Open3.popen3("./setup.sh") do |stdin, stdout, stderr, thread|
       Thread.new do
         until (line = stdout.gets).nil? do
           $stdout.puts(line)
@@ -23,6 +25,13 @@ class XcodeKotlin < Formula
         stdin.puts $stdin.gets while thread.alive?
       end
       thread.join
+
+      thread.value
+    end
+
+    if status.success?
+      ignoreFilePath = File.join(prefix, ".success")
+      File.new(ignoreFilePath, 'w').close
     end
   end
 
