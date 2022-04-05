@@ -6,7 +6,24 @@ class XcodeKotlin < Formula
   license "Apache-2.0"
 
   def install
-    system "./setup.sh"
+    require 'open3'
+
+    Open3.popen3("./setup.sh") do |stdin, stdout, stderr, thread|
+      Thread.new do
+        until (line = stdout.gets).nil? do
+          $stdout.puts(line)
+        end
+      end
+      Thread.new do
+        until (line = stderr.gets).nil? do
+          $stderr.puts(line)
+        end
+      end
+      Thread.new do
+        stdin.puts $stdin.gets while thread.alive?
+      end
+      thread.join
+    end
   end
 
   test do
