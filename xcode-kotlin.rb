@@ -1,16 +1,39 @@
 class XcodeKotlin < Formula
   desc "Kotlin Native Xcode Plugin"
   homepage "https://github.com/touchlab/xcode-kotlin"
-  url "https://github.com/touchlab/xcode-kotlin.git", :tag => "0.2.2"
-  head "https://github.com/touchlab/xcode-kotlin.git", branch: "main"
+  url "https://github.com/touchlab/xcode-kotlin.git", :tag => "v0.2.2"
+  head "https://github.com/touchlab/xcode-kotlin.git", branch: "feature/cli"
   license "Apache-2.0"
-  keg_only "There is no command to call after installed."
+  depends_on :xcode
+  depends_on "java" => :build
 
   def install
-    require 'open3'
-    require 'fileutils'
+    ohai "Deciding which architecture to build"
+    arch = `uname -m`.strip
 
-    status = Open3.popen3("./setup.sh") do |stdin, stdout, stderr, thread|
+    case arch
+    when 'arm64'
+      buildTask = 'linkReleaseExecutableMacosArm64'
+      buildDir = 'macosArm64'
+    when 'x86_64'
+      buildTask = 'linkReleaseExecutableMacosX64'
+      buildDir = 'macosX64'
+    else
+      odie "Unsupported macOS architecture #{arch}."
+    end
+    ohai "Building executable for #{arch}"
+    buildStatus = runShell "./gradlew --no-daemon #{buildTask}"
+    odie "Build FAILED" unless buildStatus.success?
+    bin.install "build/bin/#{buildDir}/releaseExecutable/xcode-kotlin.kexe" => 'xcode-kotlin'
+    share.install Dir["data/*"]
+  end
+
+  test do
+    runShell "xcode-kotlin info"
+  end
+
+  def runShell(command)
+    Open3.popen3(command) do |stdin, stdout, stderr, thread|
       Thread.new do
         until (line = stdout.gets).nil? do
           $stdout.puts(line)
@@ -28,18 +51,5 @@ class XcodeKotlin < Formula
 
       thread.value
     end
-
-    if status.success?
-      FileUtils.mkdir_p(prefix)
-      ignoreFilePath = File.join(prefix, "SUCCESS")
-      File.new(ignoreFilePath, 'w').close
-    else
-      odie "Couldn't install xcode-kotlin plugin!"
-    end
-  end
-
-  test do
-    # Nothing to test so far.
-    system "true"
   end
 end
