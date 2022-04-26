@@ -2,7 +2,7 @@ class XcodeKotlin < Formula
   desc "Kotlin Native Xcode Plugin"
   homepage "https://github.com/touchlab/xcode-kotlin"
   url "https://github.com/touchlab/xcode-kotlin.git", :tag => "v0.2.2"
-  head "https://github.com/touchlab/xcode-kotlin.git", branch: "feature/cli"
+  head "https://github.com/touchlab/xcode-kotlin.git", branch: "cli"
   license "Apache-2.0"
   depends_on :xcode
   depends_on "java" => :build
