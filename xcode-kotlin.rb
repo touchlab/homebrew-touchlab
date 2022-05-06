@@ -5,7 +5,7 @@ class XcodeKotlin < Formula
   license "Apache-2.0"
   head "https://github.com/touchlab/xcode-kotlin.git", branch: "main"
   depends_on "java" => :build
-  depends_on :xcode => :build
+  depends_on xcode: :build
 
   def install
     ohai "Deciding which architecture to build"
